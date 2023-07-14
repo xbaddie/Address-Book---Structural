@@ -1,8 +1,0 @@
-1|7|edit|elo|elo|elo|elo
-2|7|edit|elo|elo|elo|elo
-3|4|elo|elo|elo|elo|elo
-5|4|elo|elo|elo|elo|elo
-7|3|elo|elo|elo|elo|elo
-8|7|elo|elo|elo|elo|elo
-9|1|elo|elo|elo|elo|elo
-10|5|edit|elo|elo|elo|elo

@@ -1,7 +1,1 @@
-1|lo|hehe
-2|elo|lo
-3|wlo|elo
-4|kro|what
-5|blo|jol
-6|hlo|elo
-7|bro|ehe
+0|elo|elo

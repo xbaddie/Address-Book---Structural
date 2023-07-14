@@ -374,12 +374,12 @@ void deleteEntry(vector<contact>& phoneBookContacts, int& id, int userId) {
             }),
             phoneBookContacts.end());
         }
+        id = (phoneBookContacts.back()).id + 1;
         system("pause");
     } else {
         cout << "Nie znaleziono kontaktu o podanym ID." << endl;
         system("pause");
     }
-    id = (phoneBookContacts.back()).id + 1;
     system("CLS");
 }
 
@@ -541,7 +541,7 @@ void openPhoneBook(int userId, vector <user>& users) {
         cout << "4. Edycja kontaktow" << endl;
         cout << "5. Usuwanie kontakow" << endl;
         cout << "6. Zmien haslo" << endl;
-        cout << "7. Wyloguj" << endl;
+        cout << "7. Wyloguj i zapisz zmiany" << endl;
         cout << "Wpisz cyfre i zatwierdz enterem w celu wybrania opcji: ";
 
         cin >> menuChoice;
@@ -598,9 +598,9 @@ int main() {
             break;
         case 2:
             registerNewUser(users, userId);
+            writeUsersToFile(users);
             break;
         case 3:
-            writeUsersToFile(users);
             break;
         }
     }
