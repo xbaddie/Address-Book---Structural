@@ -491,7 +491,39 @@ void editContact(vector <contact>& phoneBookContacts, int userId) {
     system("CLS");
 }
 
-void openPhoneBook(int userId) {
+void changePassword(vector <user>& users, int userId) {
+    bool userFound = false;
+    string password, newPassword, passwordCheck;
+
+    cout << "Wpisz swoje obecne haslo" << endl;
+    cin >> password;
+
+    for (auto& singleUserData : users) {
+        if (singleUserData.id == userId) {
+            userFound = true;
+            if (singleUserData.password == password) {
+                cout << "Podaj nowe haslo: " << endl;
+                newPassword = readLine();
+                cout << "Wpisz haslo ponownie: " << endl;
+                passwordCheck = readLine();
+                singleUserData.password = newPassword;
+                writeUsersToFile(users);
+                cout << "Haslo zostalo zmienione" << endl;
+                system("pause");
+                system("CLS");
+            }
+            break;
+        }
+
+    }
+    if (!userFound) {
+        cout << "Uzytkownik nie jestnieje lub podane haslo jest nieprawidlowe." << endl;
+        system("pause");
+        system("CLS");
+    }
+}
+
+void openPhoneBook(int userId, vector <user>& users) {
 
     int menuChoice, id;
 
@@ -499,7 +531,7 @@ void openPhoneBook(int userId) {
 
     populatePhoneBookVector(phoneBookContacts, id, userId);
 
-    while (menuChoice != 6) {
+    while (menuChoice != 7) {
 
         menuChoice = 0;
         cout << "Witaj w aplikacji ksiazka adresowa, oto dostepne opcje:" << endl;
@@ -508,7 +540,8 @@ void openPhoneBook(int userId) {
         cout << "3. Wyswietl wszystkie wpisy w ksiazce." << endl;
         cout << "4. Edycja kontaktow" << endl;
         cout << "5. Usuwanie kontakow" << endl;
-        cout << "6. Wyloguj" << endl;
+        cout << "6. Zmien haslo" << endl;
+        cout << "7. Wyloguj" << endl;
         cout << "Wpisz cyfre i zatwierdz enterem w celu wybrania opcji: ";
 
         cin >> menuChoice;
@@ -530,6 +563,9 @@ void openPhoneBook(int userId) {
             deleteEntry(phoneBookContacts, id, userId);
             break;
         case 6:
+            changePassword(users, userId);
+            break;
+        case 7:
             writeContactsToFile(phoneBookContacts, userId);
             break;
         }
@@ -557,7 +593,7 @@ int main() {
         switch (menuChoice) {
         case 1:
             if (login(users, userId)) {
-                openPhoneBook(userId);
+                openPhoneBook(userId, users);
             }
             break;
         case 2:
