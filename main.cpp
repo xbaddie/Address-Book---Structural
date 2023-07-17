@@ -75,7 +75,7 @@ void checkIfUserExists(vector <user>& users, string &login) {
     }
 }
 
-void registerNewUser(vector <user>& users, int userId) {
+void registerNewUser(vector <user>& users, int &newUserId) {
 
     string login, password = "a", passwordCheck = "b";
     user userData;
@@ -98,15 +98,14 @@ void registerNewUser(vector <user>& users, int userId) {
         }
     }
 
-    cout << userId << endl;
-    userData.id = userId;
+    userData.id = newUserId;
     userData.login = login;
     userData.password = password;
 
 
     users.push_back(userData);
 
-    userId++;
+    newUserId++;
 
     system("CLS");
 }
@@ -122,7 +121,7 @@ void writeUsersToFile(vector<user>& users) {
     usersBase.close();
 }
 
-bool login(vector<user>& users, int userId) {
+bool login(vector<user>& users, int &loggedUserId) {
     string searchedLogin, password;
     bool loginSuccessful;
 
@@ -134,7 +133,7 @@ bool login(vector<user>& users, int userId) {
             cout << "Podaj haslo: ";
             password = readLine();
             if (password == singleUserData.password) {
-                userId = singleUserData.id;
+                loggedUserId = singleUserData.id;
                 loginSuccessful = true;
             } else {
                 loginSuccessful = false;
@@ -610,9 +609,9 @@ void openPhoneBook(int userId, vector <user>& users) {
 
 
 int main() {
-    int userId, menuChoice;
+    int newUserId, loggedUser, menuChoice;
     vector <user> users;
-    populateUserBase(users, userId);
+    populateUserBase(users, newUserId);
 
 
 
@@ -633,12 +632,12 @@ int main() {
 
         switch (menuChoice) {
         case 1:
-            if (login(users, userId)) {
-                openPhoneBook(userId, users);
+            if (login(users, loggedUser)) {
+                openPhoneBook(loggedUser, users);
             }
             break;
         case 2:
-            registerNewUser(users, userId);
+            registerNewUser(users, newUserId);
             writeUsersToFile(users);
             break;
         case 3:

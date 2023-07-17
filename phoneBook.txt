@@ -17,3 +17,6 @@
 20|4|elo|elo|elo|elo|elo
 21|5|elo|elo|elo|elo|elo
 22|6|qwe|qwe|qwe|qwe|qwe
+23|1|elo|elo|elo|elo|elo
+24|7|fg|fg|fg|fg|fg
+25|8|rf|rf|rf|rf|rf
