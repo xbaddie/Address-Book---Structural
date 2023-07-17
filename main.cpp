@@ -28,6 +28,14 @@ string readLine() {
     return input;
 }
 
+void wrongChoiceErrorHandler() {
+    cin.clear();
+    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    cout << "Nieprawidlowy wybor" << endl;
+    system("pause");
+    system("CLS");
+}
+
 void populateUserBase(vector <user>& users, int& userId) {
     fstream usersBase;
     string line, tempId;
@@ -47,7 +55,6 @@ void populateUserBase(vector <user>& users, int& userId) {
             userId = stoi(tempId) + 1;
             getline(singleUserData, userData.login, '|');
             getline(singleUserData, userData.password, '|');
-
             users.push_back(userData);
 
         }
@@ -68,7 +75,7 @@ void checkIfUserExists(vector <user>& users, string &login) {
     }
 }
 
-void registerNewUser(vector <user>& users, int &userId) {
+void registerNewUser(vector <user>& users, int userId) {
 
     string login, password = "a", passwordCheck = "b";
     user userData;
@@ -91,7 +98,7 @@ void registerNewUser(vector <user>& users, int &userId) {
         }
     }
 
-
+    cout << userId << endl;
     userData.id = userId;
     userData.login = login;
     userData.password = password;
@@ -115,7 +122,7 @@ void writeUsersToFile(vector<user>& users) {
     usersBase.close();
 }
 
-bool login(vector<user>& users, int &userId) {
+bool login(vector<user>& users, int userId) {
     string searchedLogin, password;
     bool loginSuccessful;
 
@@ -147,73 +154,80 @@ bool login(vector<user>& users, int &userId) {
     }
 }
 
-void writeContactsToFile(vector<contact>& phoneBookContacts, int userId) {
-    fstream phoneBook;
-    ofstream tempPhoneBook;
+void writeRecordsToFile(ofstream &file, const contact &record) {
+    file << record.id << "|"
+         << record.userId << "|"
+         << record.name << "|"
+         << record.secondName << "|"
+         << record.emailAddress << "|"
+         << record.phoneNumber << "|"
+         << record.address << endl;
+}
+
+void createPhoneBookIfItDoesntExist(vector<contact>& phoneBookContacts) {
+    ofstream phoneBook("phoneBook.txt", ios::app);
+    for (const auto& contact : phoneBookContacts) {
+        writeRecordsToFile(phoneBook, contact);
+    }
+}
+
+void updatePhoneBookRecords(vector<contact>& phoneBookContacts, fstream &phoneBook, ofstream &tempPhoneBook) {
     string line;
+    int userId;
+    while (getline(phoneBook, line)) {
+        string tempId, tempUserId;
+        bool contactFound = false;
+        stringstream singleContactData(line);
+        getline(singleContactData, tempId, '|');
+        getline(singleContactData, tempUserId, '|');
 
-    phoneBook.open("phoneBook.txt", ios::in);
-    if (phoneBook.good()==false) {
-        ofstream phoneBook("phoneBook.txt", ios::out | ios::app | ios::in);
-        for (const auto& contact : phoneBookContacts) {
-            phoneBook   << contact.id << "|"
-                        << contact.userId << "|"
-                        << contact.name << "|"
-                        << contact.secondName << "|"
-                        << contact.emailAddress << "|"
-                        << contact.phoneNumber << "|"
-                        << contact.address << endl;
-        }
-    } else {
-        ofstream tempPhoneBook("tempPhoneBook.txt", ios::out | ios::app | ios::in);
-        while (getline(phoneBook, line)) {
-            string tempId, tempUserId;
-            bool contactFound = false;
-            stringstream singleContactData(line);
-            getline(singleContactData, tempId, '|');
-            getline(singleContactData, tempUserId, '|');
-
-            for (auto it = phoneBookContacts.begin(); it != phoneBookContacts.end(); ) {
-                const auto& contact = *it;
-                if (contact.id == stoi(tempId)) {
-                    tempPhoneBook   << contact.id << "|"
-                                    << contact.userId << "|"
-                                    << contact.name << "|"
-                                    << contact.secondName << "|"
-                                    << contact.emailAddress << "|"
-                                    << contact.phoneNumber << "|"
-                                    << contact.address << endl;
-                    it = phoneBookContacts.erase(it);
-                    contactFound = true;
-                    break;
-                } else {
-                    it++;
-                    break;
-                }
-            }
-            if (!contactFound && stoi(tempUserId) != userId) {
-                tempPhoneBook << line << endl;
+        for (auto it = phoneBookContacts.begin(); it != phoneBookContacts.end(); ) {
+            const auto& contact = *it;
+            if (contact.id == stoi(tempId)) {
+                writeRecordsToFile(tempPhoneBook, contact);
+                it = phoneBookContacts.erase(it);
+                contactFound = true;
+                userId = contact.userId;
+                break;
+            } else {
+                it++;
+                break;
             }
         }
-        for (const auto& contact : phoneBookContacts) {
-            tempPhoneBook   << contact.id << "|"
-                            << contact.userId << "|"
-                            << contact.name << "|"
-                            << contact.secondName << "|"
-                            << contact.emailAddress << "|"
-                            << contact.phoneNumber << "|"
-                            << contact.address << endl;
+        if (!contactFound && stoi(tempUserId) != userId) {
+            tempPhoneBook << line << endl;
         }
     }
+}
+
+void writeNewlyAddedRecordsToFile(vector<contact>& phoneBookContacts, ofstream &tempPhoneBook) {
+    for (const auto& contact : phoneBookContacts) {
+        writeRecordsToFile(tempPhoneBook, contact);
+    }
+}
+
+void renameFiles(fstream &phoneBook, ofstream &tempPhoneBook){
     tempPhoneBook.close();
     phoneBook.close();
 
-    phoneBookContacts.clear();
     remove("phoneBook.txt");
     rename("tempPhoneBook.txt", "phoneBook.txt");
-    cout << endl << "Wylogowano" << endl;
-    system("pause");
-    system("CLS");
+}
+
+
+void writeContactsToFile(vector<contact> phoneBookContacts) {
+    fstream phoneBook;
+    ofstream tempPhoneBook("tempPhoneBook.txt", ios::out | ios::app | ios::in);
+
+    phoneBook.open("phoneBook.txt", ios::in);
+    if (phoneBook.good()==false) {
+            createPhoneBookIfItDoesntExist(phoneBookContacts);
+            return;
+    }else {
+        updatePhoneBookRecords(phoneBookContacts, phoneBook, tempPhoneBook);
+    }
+    writeNewlyAddedRecordsToFile(phoneBookContacts, tempPhoneBook);
+    renameFiles(phoneBook, tempPhoneBook);
 }
 
 
@@ -281,6 +295,10 @@ void searchBook(vector <contact>& phoneBookContacts, int userId) {
 
     cin >> choice;
 
+    if (cin.fail()) {
+            wrongChoiceErrorHandler();
+    }
+
     switch (choice) {
     case 1:
         searchBookByFirstName(phoneBookContacts);
@@ -297,7 +315,7 @@ void displayAllContacts(vector <contact>& phoneBookContacts, int userId) {
 
     cout << "Wyswietlam wszystkie kontakty: " << endl;
 
-    for (int i = 0; i < phoneBookContacts.size(); i++) {
+    for (size_t i = 0; i < phoneBookContacts.size(); i++) {
 
         cout << endl <<"ID: " << phoneBookContacts[i].id << endl;
         cout << "Imie: " << phoneBookContacts[i].name << endl;
@@ -451,6 +469,10 @@ void editContact(vector <contact>& phoneBookContacts, int userId) {
 
             cin >> choice;
 
+            if (cin.fail()) {
+                wrongChoiceErrorHandler();
+            }
+
             switch(choice) {
             case 1:
                 cout << "Podaj nowe imie: ";
@@ -523,6 +545,8 @@ void changePassword(vector <user>& users, int userId) {
     }
 }
 
+
+
 void openPhoneBook(int userId, vector <user>& users) {
 
     int menuChoice, id;
@@ -546,9 +570,14 @@ void openPhoneBook(int userId, vector <user>& users) {
 
         cin >> menuChoice;
 
+        if (cin.fail()) {
+            wrongChoiceErrorHandler();
+        }
+
         switch (menuChoice) {
         case 1:
             createEntry(phoneBookContacts, id, userId);
+            writeContactsToFile(phoneBookContacts);
             break;
         case 2:
             searchBook(phoneBookContacts, userId);
@@ -558,19 +587,27 @@ void openPhoneBook(int userId, vector <user>& users) {
             break;
         case 4:
             editContact(phoneBookContacts, userId);
+            writeContactsToFile(phoneBookContacts);
             break;
         case 5:
             deleteEntry(phoneBookContacts, id, userId);
+            writeContactsToFile(phoneBookContacts);
             break;
         case 6:
             changePassword(users, userId);
             break;
         case 7:
-            writeContactsToFile(phoneBookContacts, userId);
+            writeContactsToFile(phoneBookContacts);
+            phoneBookContacts.clear();
+            cout << "Wylogowano" << endl;
+            system("pause");
+            system("CLS");
             break;
         }
     }
 }
+
+
 
 int main() {
     int userId, menuChoice;
@@ -589,6 +626,10 @@ int main() {
 
 
         cin >> menuChoice;
+
+        if (cin.fail()) {
+                wrongChoiceErrorHandler();
+    }
 
         switch (menuChoice) {
         case 1:
