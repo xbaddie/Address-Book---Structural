@@ -9,6 +9,8 @@
 
 using namespace std;
 
+
+
 struct user {
     int id;
     string login, password;
@@ -26,6 +28,15 @@ string readLine() {
     getline(cin, input);
 
     return input;
+}
+
+void readContactData(contact singleContactData) {
+    cout << endl <<"ID: " << singleContactData.id << endl;
+    cout << "Imie: " << singleContactData.name << endl;
+    cout << "Nazwisko: " << singleContactData.secondName << endl;
+    cout << "Numer telefonu: " << singleContactData.phoneNumber << endl;
+    cout << "Email: " << singleContactData.emailAddress << endl;
+    cout << "Adres: " << singleContactData.address << endl << endl;
 }
 
 void wrongChoiceErrorHandler() {
@@ -182,11 +193,11 @@ void updatePhoneBookRecords(vector<contact>& phoneBookContacts, fstream &phoneBo
 
         for (auto it = phoneBookContacts.begin(); it != phoneBookContacts.end(); ) {
             const auto& contact = *it;
+            userId = contact.userId;
             if (contact.id == stoi(tempId)) {
                 writeRecordsToFile(tempPhoneBook, contact);
                 it = phoneBookContacts.erase(it);
                 contactFound = true;
-                userId = contact.userId;
                 break;
             } else {
                 it++;
@@ -197,6 +208,8 @@ void updatePhoneBookRecords(vector<contact>& phoneBookContacts, fstream &phoneBo
             tempPhoneBook << line << endl;
         }
     }
+    cout << "Wyswietlam wszystkie kontakty: " << endl;
+
 }
 
 void writeNewlyAddedRecordsToFile(vector<contact>& phoneBookContacts, ofstream &tempPhoneBook) {
@@ -240,12 +253,7 @@ void searchBookByFirstName(vector <contact>& phoneBookContacts) {
 
     for (const auto& singleContactData : phoneBookContacts) {
         if (singleContactData.name == searchedName) {
-            cout << endl <<"ID: " << singleContactData.id << endl;
-            cout << "Imie: " << singleContactData.name << endl;
-            cout << "Nazwisko: " << singleContactData.secondName << endl;
-            cout << "Numer telefonu: " << singleContactData.phoneNumber << endl;
-            cout << "Email: " << singleContactData.emailAddress << endl;
-            cout << "Adres: " << singleContactData.address << endl << endl;
+                readContactData(singleContactData);
             contactFound = true;
         }
     }
@@ -267,13 +275,8 @@ void searchBookBySecondName(vector <contact>& phoneBookContacts) {
 
     for (const auto& singleContactData : phoneBookContacts) {
         if (singleContactData.name == searchedSecondName) {
-            cout << endl <<"ID: " << singleContactData.id << endl;
-            cout << "Imie: " << singleContactData.name << endl;
-            cout << "Nazwisko: " << singleContactData.secondName << endl;
-            cout << "Numer telefonu: " << singleContactData.phoneNumber << endl;
-            cout << "Email: " << singleContactData.emailAddress << endl;
-            cout << "Adres: " << singleContactData.address << endl << endl;
-            contactFound = true;
+                readContactData(singleContactData);
+                contactFound = true;
         }
     }
     if (!contactFound) {
@@ -284,7 +287,7 @@ void searchBookBySecondName(vector <contact>& phoneBookContacts) {
     system("CLS");
 }
 
-void searchBook(vector <contact>& phoneBookContacts, int userId) {
+void searchBook(vector <contact>& phoneBookContacts) {
     int choice = 0;
 
     cout << "Wyszukiwanie kontakow:" << endl;
@@ -315,21 +318,14 @@ void displayAllContacts(vector <contact>& phoneBookContacts, int userId) {
     cout << "Wyswietlam wszystkie kontakty: " << endl;
 
     for (size_t i = 0; i < phoneBookContacts.size(); i++) {
-
-        cout << endl <<"ID: " << phoneBookContacts[i].id << endl;
-        cout << "Imie: " << phoneBookContacts[i].name << endl;
-        cout << "Nazwisko: " << phoneBookContacts[i].secondName << endl;
-        cout << "Numer telefonu: " << phoneBookContacts[i].phoneNumber << endl;
-        cout << "Email: " << phoneBookContacts[i].emailAddress << endl;
-        cout << "Adres: " << phoneBookContacts[i].address << endl << endl;
-
+        readContactData(phoneBookContacts[i]);
     }
 
     system("pause");
     system("CLS");
 }
 
-void createEntry(vector <contact>& phoneBookContacts, int &id, int userId) {
+void createEntry(vector <contact>& phoneBookContacts, int &idOfLastRecordInBook, int userId) {
 
     string name, secondName, emailAddress, phoneNumber, address;
     contact contactDetails;
@@ -346,7 +342,8 @@ void createEntry(vector <contact>& phoneBookContacts, int &id, int userId) {
     cout << "Podaj pelen adres: ";
     address = readLine();
 
-    contactDetails.id = id;
+    contactDetails.id = idOfLastRecordInBook + 1;
+    idOfLastRecordInBook = idOfLastRecordInBook + 1;
     contactDetails.userId = userId;
     contactDetails.name = name;
     contactDetails.secondName = secondName;
@@ -356,20 +353,18 @@ void createEntry(vector <contact>& phoneBookContacts, int &id, int userId) {
 
     phoneBookContacts.push_back(contactDetails);
 
-    id++;
-
     system("CLS");
 }
 
-void deleteEntry(vector<contact>& phoneBookContacts, int& id, int userId) {
+void deleteEntry(vector<contact>& phoneBookContacts, int &idOfLastRecordInBook, int userId) {
     char choice;
-    int searchedID;
+    int searchedID, idOfRecordToDelete;
 
     cout << "Podaj ID kontaktu, ktory chcesz usunac: ";
-    cin >> id;
+    cin >> idOfRecordToDelete;
 
-    auto it = find_if(phoneBookContacts.begin(), phoneBookContacts.end(), [id](const contact& element) {
-        return element.id == id;
+    auto it = find_if(phoneBookContacts.begin(), phoneBookContacts.end(), [idOfRecordToDelete](const contact& element) {
+        return element.id == idOfRecordToDelete;
     });
     if (it != phoneBookContacts.end()) {
         searchedID = distance(phoneBookContacts.begin(), it);
@@ -387,12 +382,13 @@ void deleteEntry(vector<contact>& phoneBookContacts, int& id, int userId) {
         if (choice == 'T' || choice == 't') {
             phoneBookContacts.erase(
             remove_if(phoneBookContacts.begin(), phoneBookContacts.end(), [&](contact const& singleContact) {
-                return singleContact.id == id;
+                return singleContact.id == idOfRecordToDelete;
             }),
             phoneBookContacts.end());
         }
-        id = (phoneBookContacts.back()).id + 1;
-        system("pause");
+        if(idOfRecordToDelete == idOfLastRecordInBook)
+            idOfLastRecordInBook = idOfLastRecordInBook - 1;
+            system("pause");
     } else {
         cout << "Nie znaleziono kontaktu o podanym ID." << endl;
         system("pause");
@@ -400,7 +396,7 @@ void deleteEntry(vector<contact>& phoneBookContacts, int& id, int userId) {
     system("CLS");
 }
 
-void populatePhoneBookVector(vector <contact>& phoneBookContacts, int& id, int userId) {
+void populatePhoneBookVector(vector <contact>& phoneBookContacts, int& idOfLastRecordInBook, int userId) {
     fstream phoneBook;
     string line, tempId;
     contact contactDetails;
@@ -408,7 +404,7 @@ void populatePhoneBookVector(vector <contact>& phoneBookContacts, int& id, int u
 
     phoneBook.open("phoneBook.txt", ios::in);
     if (phoneBook.good()==false) {
-        id = 1;
+        idOfLastRecordInBook = 0;
     } else {
 
         while(getline(phoneBook, line)) {
@@ -416,7 +412,7 @@ void populatePhoneBookVector(vector <contact>& phoneBookContacts, int& id, int u
 
             getline(singleContactData, tempId, '|');
             contactDetails.id = stoi(tempId);
-            id = stoi(tempId) + 1;
+            idOfLastRecordInBook = stoi(tempId);
             getline(singleContactData, tempId, '|');
             contactDetails.userId = stoi(tempId);
             getline(singleContactData, contactDetails.name, '|');
@@ -436,12 +432,7 @@ void populatePhoneBookVector(vector <contact>& phoneBookContacts, int& id, int u
 void displayContactByID(vector <contact>& phoneBookContacts, int id, int userId) {
     for (auto& singleContactData : phoneBookContacts) {
         if (singleContactData.id == id) {
-            cout << endl <<"ID: " << singleContactData.id << endl;
-            cout << "Imie: " << singleContactData.name << endl;
-            cout << "Nazwisko: " << singleContactData.secondName << endl;
-            cout << "Numer telefonu: " << singleContactData.phoneNumber << endl;
-            cout << "Email: " << singleContactData.emailAddress << endl;
-            cout << "Adres: " << singleContactData.address << endl << endl;
+                readContactData(singleContactData);
         }
     }
 }
@@ -548,11 +539,11 @@ void changePassword(vector <user>& users, int userId) {
 
 void openPhoneBook(int userId, vector <user>& users) {
 
-    int menuChoice, id;
+    int menuChoice, idOfLastRecordInBook;
 
     vector <contact> phoneBookContacts;
 
-    populatePhoneBookVector(phoneBookContacts, id, userId);
+    populatePhoneBookVector(phoneBookContacts, idOfLastRecordInBook, userId);
 
     while (menuChoice != 7) {
 
@@ -575,11 +566,11 @@ void openPhoneBook(int userId, vector <user>& users) {
 
         switch (menuChoice) {
         case 1:
-            createEntry(phoneBookContacts, id, userId);
+            createEntry(phoneBookContacts, idOfLastRecordInBook, userId);
             writeContactsToFile(phoneBookContacts);
             break;
         case 2:
-            searchBook(phoneBookContacts, userId);
+            searchBook(phoneBookContacts);
             break;
         case 3:
             displayAllContacts(phoneBookContacts,userId);
@@ -589,7 +580,7 @@ void openPhoneBook(int userId, vector <user>& users) {
             writeContactsToFile(phoneBookContacts);
             break;
         case 5:
-            deleteEntry(phoneBookContacts, id, userId);
+            deleteEntry(phoneBookContacts, idOfLastRecordInBook, userId);
             writeContactsToFile(phoneBookContacts);
             break;
         case 6:
@@ -609,7 +600,7 @@ void openPhoneBook(int userId, vector <user>& users) {
 
 
 int main() {
-    int newUserId, loggedUser, menuChoice;
+    int newUserId, loggedUserId, menuChoice;
     vector <user> users;
     populateUserBase(users, newUserId);
 
@@ -632,8 +623,8 @@ int main() {
 
         switch (menuChoice) {
         case 1:
-            if (login(users, loggedUser)) {
-                openPhoneBook(loggedUser, users);
+            if (login(users, loggedUserId)) {
+                openPhoneBook(loggedUserId, users);
             }
             break;
         case 2:
