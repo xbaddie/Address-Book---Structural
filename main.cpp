@@ -369,12 +369,7 @@ void deleteEntry(vector<contact>& phoneBookContacts, int &idOfLastRecordInBook, 
     if (it != phoneBookContacts.end()) {
         searchedID = distance(phoneBookContacts.begin(), it);
 
-        cout << endl << "ID: " << phoneBookContacts[searchedID].id << endl;
-        cout << "Imiê: " << phoneBookContacts[searchedID].name << endl;
-        cout << "Nazwisko: " << phoneBookContacts[searchedID].secondName << endl;
-        cout << "Numer telefonu: " << phoneBookContacts[searchedID].phoneNumber << endl;
-        cout << "Email: " << phoneBookContacts[searchedID].emailAddress << endl;
-        cout << "Adres: " << phoneBookContacts[searchedID].address << endl << endl;
+        readContactData(phoneBookContacts[searchedID]);
 
         cout << "Czy na pewno chcesz usunac wybrany kontakt? T/N" << endl;
         cin >> choice;
