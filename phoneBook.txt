@@ -1,9 +1,0 @@
-2|1|elo|elo|elo|elo|elo
-3|1|elo3|elo|elo|elo|elo
-5|2|lol2|elo|edit|elo|elo
-6|3|bro|elo|elo|elo|elo
-7|3|bro|elo|elo|elo|elo
-8|3|bro3|elo|elo|edit|elo
-10|1|elo|elo|elo|elo|edit
-11|2|elo|elo|elo|elo|elo
-12|1|elo|elo|elo|elo|elo
