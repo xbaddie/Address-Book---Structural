@@ -237,7 +237,7 @@ void searchBook(vector <Contact>& phoneBookContacts) {
     }
 }
 
-void displayAllContacts(vector <Contact>& phoneBookContacts, int userId) {
+void displayAllContacts(vector <Contact>& phoneBookContacts) {
 
     cout << "Wyswietlam wszystkie kontakty: " << endl;
 
@@ -376,7 +376,7 @@ int populatePhoneBookVector(vector <Contact>& phoneBookContacts, int userId) {
     return idOfLastRecordInBook;
 }
 
-void displayContactByID(vector <Contact>& phoneBookContacts, int id, int userId) {
+void displayContactByID(vector <Contact>& phoneBookContacts, int id) {
     for (auto& singleContactData : phoneBookContacts) {
         if (singleContactData.id == id) {
                 readContactData(singleContactData);
@@ -410,7 +410,7 @@ void editContact(vector <Contact>& phoneBookContacts, int userId) {
     cout << "Podaj ID kontaktu ktory chcesz edytowac: " << endl;
     cin >> id;
     cout << "Dane kontaktu przed edycja:" << endl;
-    displayContactByID(phoneBookContacts, id, userId);
+    displayContactByID(phoneBookContacts, id);
 
     for (auto& singleContactData : phoneBookContacts) {
         if (singleContactData.id == id) {
@@ -467,7 +467,7 @@ void editContact(vector <Contact>& phoneBookContacts, int userId) {
         cout << "Kontakt o podanym ID nie istnieje." << endl;
     } else {
         cout << "Dane kontaktu po edycji";
-        displayContactByID(phoneBookContacts, id, userId);
+        displayContactByID(phoneBookContacts, id);
     }
 
     system("pause");
@@ -540,7 +540,7 @@ void openPhoneBook(int userId, vector <User>& users) {
             searchBook(phoneBookContacts);
             break;
         case 3:
-            displayAllContacts(phoneBookContacts,userId);
+            displayAllContacts(phoneBookContacts);
             break;
         case 4:
             editContact(phoneBookContacts, userId);
